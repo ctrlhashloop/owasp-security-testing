@@ -13,15 +13,25 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
+#      - name: Start OWASP ZAP Daemon Container
+#        run: |
+#          docker run -d \
+#            --name zap-daemon \
+#            -p 8080:8080 \
+#            ghcr.io/zaproxy/zaproxy:stable \
+#            zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true
       - name: Start OWASP ZAP Daemon Container
         run: |
           docker run -d \
-            --name zap-daemon \
-            -p 8080:8080 \
-            ghcr.io/zaproxy/zaproxy:stable \
-            zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true
-
+          --name zap-daemon \
+          -p 8080:8080 \
+          ghcr.io/zaproxy/zaproxy:stable \
+          zap.sh -daemon \
+          -host 0.0.0.0 \
+          -port 8080 \
+          -config api.disablekey=true \
+          -config api.addrs.addr.name=.* \
+          -config api.addrs.addr.regex=true
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
