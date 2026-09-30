@@ -12,19 +12,17 @@ jobs:
   security_scan:
     runs-on: ubuntu-latest
 
-    # Spin up official OWASP ZAP as a background service container
-    services:
-      zap:
-        image: ghcr.io/zaproxy/zaproxy:stable
-        ports:
-          - 8080:8080
-        options: >-
-          -t
-          zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Start OWASP ZAP Daemon Container
+        run: |
+          docker run -d \
+            --name zap-daemon \
+            -p 8080:8080 \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -37,8 +35,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Wait for ZAP to Initialize
+        run: |
+          echo "Waiting for ZAP API to become ready..."
+          until curl -s http://localhost:8080/JSON/core/view/version/; do
+            sleep 3
+          done
+          echo "ZAP is up and running!"
+
       - name: Run Security Automation Script
-        run: python zap_saucedemo-security_test.py
+        run: python zap_local_test.py
 
       - name: Upload Security Report Artifact
         uses: actions/upload-artifact@v4
