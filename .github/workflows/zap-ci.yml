@@ -60,7 +60,7 @@ jobs:
         run: python scripts/zap_saucedemo-security_test.py
 
       - name: Upload Security Report Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: zap-html-security-report
           path: reports/zap_scan_report.html
