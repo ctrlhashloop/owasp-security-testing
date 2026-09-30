@@ -57,7 +57,7 @@ jobs:
         run: docker logs zap-daemon
 
       - name: Run Security Automation Script
-        run: python zap_local_test.py
+        run: python scripts/zap_saucedemo-security_test.py
 
       - name: Upload Security Report Artifact
         uses: actions/upload-artifact@v4
